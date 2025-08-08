@@ -26,21 +26,11 @@ jobs:
       
     - name: Build
       run: go build -v ./...
-    
-    - name: GH Release
-      uses: softprops/action-gh-release@v2.3.2
-      with:
-        name: Release ${{ github.ref_name }}
-        body: |
-          This is an automated release.
 
-          Changes:
-          - Built from tag ${{ github.ref_name }}
-          - Commit: ${{ github.sha }}
-        # 上传的文件
-        files: |
-          tyu-diskmark
-          # dist/bundle.js    # 可以添加多个文件
-        prerelease: false
+    - name: Publish
+      uses: elgohr/Github-Release-Action@v5
+      with:
+        # The name of the release to publish
+        title: Update
 
       
