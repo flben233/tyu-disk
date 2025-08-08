@@ -1,4 +1,4 @@
-name: Go Auto Tag & Release
+name: Go Multi-Arch Auto Release
 
 permissions:
   contents: write
@@ -25,8 +25,28 @@ jobs:
     - name: Get Dependencies
       run: go mod tidy
 
-    - name: Build
-      run: go build -v -o tyu-diskmark ./...
+    - name: Build for multiple platforms
+      run: |
+        mkdir -p dist
+        PLATFORMS=(
+          "linux/amd64"
+          "linux/arm64"
+          "windows/amd64"
+          "windows/arm64"
+          "darwin/amd64"
+          "darwin/arm64"
+        )
+        for platform in "${PLATFORMS[@]}"; do
+          GOOS=${platform%/*}
+          GOARCH=${platform#*/}
+          output="dist/tyu-diskmark-${GOOS}-${GOARCH}"
+          if [ "$GOOS" = "windows" ]; then
+            output="${output}.exe"
+          fi
+          echo "Building for $GOOS/$GOARCH..."
+          GOOS=$GOOS GOARCH=$GOARCH go build -o "$output" ./...
+        done
+        ls -lh dist
 
     - name: Create Tag
       id: tag_step
@@ -44,7 +64,7 @@ jobs:
         tag_name: ${{ steps.tag_step.outputs.tag }}
         name: Release ${{ steps.tag_step.outputs.tag }}
         body: |
-          This is an automated release.
+          This is an automated multi-arch release.
           Commit: ${{ github.sha }}
         files: |
-          tyu-diskmark
+          dist/*
