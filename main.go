@@ -130,7 +130,7 @@ func main() {
 	defer fio.CleanFio(tmpFile)
 	fmt.Println("-------------------------------- TyuDiskMark --------------------------------")
 	fmt.Println("Developer             : ShirakawaTyu")
-	fmt.Println("Last Maintaining      : 2025-08-09")
+	fmt.Println("Last Maintaining      : 2025-08-08")
 	fmt.Println("GitHub                : github.com/shirakawatyu/tyu-disk")
 	fmt.Println("-----------------------------------------------------------------------------")
 	fmt.Printf("%-32s %-32s %-25s\n", "Test", "Read(MB/s)", "Write(MB/s)")
