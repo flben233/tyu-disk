@@ -56,6 +56,21 @@ func testing(ctx context.Context) {
 	}()
 }
 
+func execCommand(command string, args ...string) (string, error) {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command(command, args...)
+	} else {
+		command = strings.Join(append([]string{command}, args...), " ")
+		cmd = exec.Command("sh", "-c", command)
+	}
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("error executing command: %s, output: %s, error: %v", command, output, err)
+	}
+	return string(output), nil
+}
+
 func diskTest(fioCmd string) {
 	// Prepare the FIO command and arguments
 	eng := "libaio"
@@ -83,16 +98,14 @@ func diskTest(fioCmd string) {
 	// Start testing
 	ctx, cancel := context.WithCancel(context.Background())
 	testing(ctx)
-	cmd := exec.Command(fioCmd, tempFile.Name(), "--ioengine="+eng, "--size="+size, "--output-format=json")
-	result, err := cmd.CombinedOutput()
+	result, err := execCommand(fioCmd, tempFile.Name(), "--ioengine="+eng, "--size="+size, "--output-format=json")
 	if err != nil {
 		panic(err)
 	}
 	cancel()
-	resultStr := string(result)
-	index := strings.Index(resultStr, "{")
+	index := strings.Index(result, "{")
 	var fioResult map[string]interface{}
-	err = json.Unmarshal([]byte(resultStr[index:]), &fioResult)
+	err = json.Unmarshal([]byte(result[index:]), &fioResult)
 	if err != nil {
 		panic(err)
 	}
