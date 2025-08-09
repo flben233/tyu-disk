@@ -24,13 +24,15 @@ jobs:
 
     - name: Get Dependencies
       run: go mod tidy
-
+      
     - name: Build for multiple platforms
       run: |
         mkdir -p dist
         PLATFORMS=(
           "linux/amd64"
           "linux/arm64"
+          "linux/mips64le"
+          "linux/loong64"
           "windows/amd64"
           "windows/arm64"
           "darwin/amd64"
@@ -39,12 +41,12 @@ jobs:
         for platform in "${PLATFORMS[@]}"; do
           GOOS=${platform%/*}
           GOARCH=${platform#*/}
-          output="dist/tyu-diskmark-${GOOS}-${GOARCH}"
+          output="dist/cdn-speed-${GOOS}-${GOARCH}"
           if [ "$GOOS" = "windows" ]; then
             output="${output}.exe"
           fi
           echo "Building for $GOOS/$GOARCH..."
-          GOOS=$GOOS GOARCH=$GOARCH go build -o "$output" ./...
+          GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=0 go build -o "$output"
         done
         ls -lh dist
 
