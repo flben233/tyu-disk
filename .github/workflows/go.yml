@@ -41,7 +41,7 @@ jobs:
         for platform in "${PLATFORMS[@]}"; do
           GOOS=${platform%/*}
           GOARCH=${platform#*/}
-          output="dist/cdn-speed-${GOOS}-${GOARCH}"
+          output="dist/tyu-disk-${GOOS}-${GOARCH}"
           if [ "$GOOS" = "windows" ]; then
             output="${output}.exe"
           fi
