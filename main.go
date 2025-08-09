@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -73,9 +74,12 @@ func execCommand(command string, args ...string) (string, error) {
 
 func diskTest(fioCmd string) {
 	// Prepare the FIO command and arguments
-	eng := "libaio"
 	if runtime.GOOS == "windows" {
-		eng = "windowsaio"
+		regex, err := regexp.Compile("ioengine=.*")
+		if err != nil {
+			panic(err)
+		}
+		fioArgs = regex.ReplaceAllString(fioArgs, "ioengine=windowsaio")
 	}
 	tempFile, err := os.CreateTemp("", "args.fio")
 	if err != nil {
@@ -98,7 +102,8 @@ func diskTest(fioCmd string) {
 	// Start testing
 	ctx, cancel := context.WithCancel(context.Background())
 	testing(ctx)
-	result, err := execCommand(fioCmd, tempFile.Name(), "--ioengine="+eng, "--size="+size, "--output-format=json")
+	var result string
+	result, err = execCommand(fioCmd, tempFile.Name(), "--size="+size, "--output-format=json")
 	if err != nil {
 		panic(err)
 	}
@@ -143,7 +148,7 @@ func main() {
 	defer fio.CleanFio(tmpFile)
 	fmt.Println("-------------------------------- TyuDiskMark --------------------------------")
 	fmt.Println("Developer             : ShirakawaTyu")
-	fmt.Println("Last Maintaining      : 2025-08-08")
+	fmt.Println("Last Maintaining      : 2025-08-09")
 	fmt.Println("GitHub                : github.com/shirakawatyu/tyu-disk")
 	fmt.Println("-----------------------------------------------------------------------------")
 	fmt.Printf("%-32s %-32s %-25s\n", "Test", "Read(MB/s)", "Write(MB/s)")
