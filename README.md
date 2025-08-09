@@ -1,5 +1,7 @@
 # TyuDiskMark
 
+A tool that provides performance results comparable to CrystalDiskMark.
+
 ## Usage
 
 Note: You need to replace the file name according to the releases page and your architecture. It's `linux-amd64` currently.
